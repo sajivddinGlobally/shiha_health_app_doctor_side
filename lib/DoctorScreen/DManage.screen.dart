@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:siha_health_doctor_side/DoctorScreen/DAddLeave.page.dart';
 import 'package:siha_health_doctor_side/DoctorScreen/DAddNewTimeSlot.page.dart';
+import 'package:siha_health_doctor_side/DoctorScreen/DManageDetailScreen.dart';
 import 'package:siha_health_doctor_side/data/Controller/manageAvailabilityController.dart';
 
 class DManageScreen extends ConsumerStatefulWidget {
@@ -46,13 +48,39 @@ class _DManageScreenState extends ConsumerState<DManageScreen> {
                         ),
                       ),
                       SizedBox(height: 24.h),
-                      GridView.builder(
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          mainAxisSpacing: 10,
-                          crossAxisSpacing: 10,
+                      Expanded(
+                        child: GridView.builder(
+                          itemCount: availability.length,
+                          padding: EdgeInsets.zero,
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                mainAxisSpacing: 10,
+                                crossAxisSpacing: 10,
+                                childAspectRatio: 0.70,
+                              ),
+                          itemBuilder: (context, index) {
+                            return _dayCard(
+                              // "Mon- Wed",
+                              availability[index].dayOfWeek,
+                              // "09:00 AM - 06:00 PM",
+                              availability[index].startTime,
+                              // "2 Breaks",
+                              availability[index].endTime,
+                              "${availability[index].breaks.length} Breaks",
+                              () {
+                                Navigator.push(
+                                  context,
+                                  CupertinoPageRoute(
+                                    builder: (_) => DManageDetailScreen(
+                                      id: availability[index].id.toString(),
+                                    ),
+                                  ),
+                                );
+                              },
+                            );
+                          },
                         ),
-                        itemBuilder: (context, index) {},
                       ),
                       // Row(
                       //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -93,7 +121,9 @@ class _DManageScreenState extends ConsumerState<DManageScreen> {
                               Navigator.push(
                                 context,
                                 CupertinoPageRoute(
-                                  builder: (context) => DAddNewTimeSlotPage(),
+                                  builder: (context) => DAddNewTimeSlotPage(
+                                    id: availability.first.id.toString(),
+                                  ),
                                 ),
                               );
                             },
@@ -148,7 +178,18 @@ class _DManageScreenState extends ConsumerState<DManageScreen> {
     );
   }
 
-  Widget _dayCard(String day, String time, String br) {
+  Widget _dayCard(
+    String day,
+    String startTime,
+    String endTime,
+    String br,
+    VoidCallback callBack,
+  ) {
+    String formatTime(String time) {
+      final parsedTime = DateFormat("HH:mm:ss").parse(time);
+      return DateFormat("HH:mm").format(parsedTime);
+    }
+
     return Container(
       padding: EdgeInsets.only(left: 10.w, right: 10.w, top: 10.h),
       decoration: BoxDecoration(
@@ -220,7 +261,7 @@ class _DManageScreenState extends ConsumerState<DManageScreen> {
           Padding(
             padding: EdgeInsets.only(left: 5.w),
             child: Text(
-              time,
+              "${formatTime(startTime)} - ${formatTime(endTime)}",
               style: GoogleFonts.poppins(
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w500,
@@ -239,9 +280,9 @@ class _DManageScreenState extends ConsumerState<DManageScreen> {
                 side: BorderSide(color: Color(0xFF76BDFF)),
               ),
             ),
-            onPressed: () {},
+            onPressed: callBack,
             child: Text(
-              "Edit Slot",
+              "View Details",
               style: GoogleFonts.poppins(
                 fontSize: 12.sp,
                 fontWeight: FontWeight.w500,

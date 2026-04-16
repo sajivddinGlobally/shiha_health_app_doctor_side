@@ -11,6 +11,52 @@ class DSettingScreen extends StatefulWidget {
 }
 
 class _DSettingScreenState extends State<DSettingScreen> {
+  Future<void> showLogoutDialog() {
+    return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: const Text(
+            "Logout",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          content: const Text(
+            "Are you sure you want to logout from your account?",
+          ),
+          actionsPadding: const EdgeInsets.symmetric(
+            horizontal: 12,
+            vertical: 8,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text(
+                "Logout",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -164,7 +210,9 @@ class _DSettingScreenState extends State<DSettingScreen> {
                                 side: BorderSide(color: Color(0xFFC11307)),
                               ),
                             ),
-                            onPressed: () {},
+                            onPressed: () {
+                              showLogoutDialog();
+                            },
                             child: Text(
                               "Logout",
                               style: GoogleFonts.poppins(

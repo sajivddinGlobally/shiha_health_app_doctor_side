@@ -11,5 +11,24 @@ Dio callDio() {
       responseHeader: true,
     ),
   );
+
+  dio.interceptors.add(
+    InterceptorsWrapper(
+      onRequest: (options, handler) {
+        options.headers.addAll({
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        });
+        return handler.next(options);
+      },
+      onResponse: (response, handler) {
+        return handler.next(response);
+      },
+      onError: (error, handler) {
+        return handler.next(error);
+      },
+    ),
+  );
+
   return dio;
 }

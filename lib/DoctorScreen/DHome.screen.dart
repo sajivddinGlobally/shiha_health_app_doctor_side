@@ -679,7 +679,7 @@ class _MyBottomNavigationState extends State<MyBottomNavigation> {
   List<IconData> icons = [
     Icons.home_outlined,
     Icons.calendar_today_outlined,
-    Icons.person_outline_rounded, // You can replace this with a drop icon
+    Icons.person_outline_rounded,
     Icons.settings,
   ];
 

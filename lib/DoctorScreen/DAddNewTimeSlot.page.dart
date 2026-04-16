@@ -1,16 +1,26 @@
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
+import 'package:siha_health_doctor_side/config/network/api.state.dart';
+import 'package:siha_health_doctor_side/config/utils/pretty.dio.dart';
+import 'package:siha_health_doctor_side/data/Controller/manageAvailabilityController.dart';
+import 'package:siha_health_doctor_side/data/Model/updateManAvailabilityBodyModel.dart';
 
-class DAddNewTimeSlotPage extends StatefulWidget {
-  const DAddNewTimeSlotPage({super.key, });
+class DAddNewTimeSlotPage extends ConsumerStatefulWidget {
+  final String id;
+  const DAddNewTimeSlotPage({super.key, required this.id});
 
   @override
-  State<DAddNewTimeSlotPage> createState() => _DAddNewTimeSlotPageState();
+  ConsumerState<DAddNewTimeSlotPage> createState() =>
+      _DAddNewTimeSlotPageState();
 }
 
-class _DAddNewTimeSlotPageState extends State<DAddNewTimeSlotPage> {
+class _DAddNewTimeSlotPageState extends ConsumerState<DAddNewTimeSlotPage> {
   String? selectDay;
 
   final List<String> dayList = [
@@ -27,6 +37,33 @@ class _DAddNewTimeSlotPageState extends State<DAddNewTimeSlotPage> {
   // Controllers for break input
   TextEditingController breakStartController = TextEditingController();
   TextEditingController breakEndController = TextEditingController();
+  TextEditingController startTimeController = TextEditingController();
+  TextEditingController endTimeController = TextEditingController();
+
+  Future<void> pickTime(TextEditingController controller) async {
+    TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+
+    if (picked != null) {
+      final now = DateTime.now();
+      final dt = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        picked.hour,
+        picked.minute,
+      );
+
+      // 👉 Format: 09:00 AM
+      final formatted = DateFormat("hh:mm a").format(dt);
+
+      controller.text = formatted;
+    }
+  }
+
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -172,6 +209,9 @@ class _DAddNewTimeSlotPageState extends State<DAddNewTimeSlotPage> {
                               ),
                               SizedBox(height: 10.h),
                               TextFormField(
+                                controller: startTimeController,
+                                readOnly: true,
+                                onTap: () => pickTime(startTimeController),
                                 decoration: InputDecoration(
                                   contentPadding: EdgeInsets.only(
                                     left: 18.w,
@@ -181,6 +221,12 @@ class _DAddNewTimeSlotPageState extends State<DAddNewTimeSlotPage> {
                                   ),
                                   filled: true,
                                   fillColor: Color(0xFFFFFFFF),
+                                  hintText: "Start Time",
+                                  hintStyle: GoogleFonts.poppins(
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.black,
+                                  ),
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(15.r),
                                   ),
@@ -214,6 +260,9 @@ class _DAddNewTimeSlotPageState extends State<DAddNewTimeSlotPage> {
                               ),
                               SizedBox(height: 10.h),
                               TextFormField(
+                                controller: endTimeController,
+                                readOnly: true,
+                                onTap: () => pickTime(endTimeController),
                                 decoration: InputDecoration(
                                   contentPadding: EdgeInsets.only(
                                     left: 18.w,
@@ -223,6 +272,12 @@ class _DAddNewTimeSlotPageState extends State<DAddNewTimeSlotPage> {
                                   ),
                                   filled: true,
                                   fillColor: Color(0xFFFFFFFF),
+                                  hintText: "END Time",
+                                  hintStyle: GoogleFonts.poppins(
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.black,
+                                  ),
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(15.r),
                                   ),
@@ -272,7 +327,7 @@ class _DAddNewTimeSlotPageState extends State<DAddNewTimeSlotPage> {
                               side: BorderSide(color: Color(0xFF76BDFF)),
                             ),
                           ),
-                          onPressed: () {
+                          onPressed: () async {
                             if (breakStartController.text.isNotEmpty &&
                                 breakEndController.text.isNotEmpty) {
                               setState(() {
@@ -315,6 +370,8 @@ class _DAddNewTimeSlotPageState extends State<DAddNewTimeSlotPage> {
                               SizedBox(height: 10.h),
                               TextFormField(
                                 controller: breakStartController,
+                                readOnly: true,
+                                onTap: () => pickTime(breakStartController),
                                 decoration: InputDecoration(
                                   contentPadding: EdgeInsets.only(
                                     left: 18.w,
@@ -324,6 +381,12 @@ class _DAddNewTimeSlotPageState extends State<DAddNewTimeSlotPage> {
                                   ),
                                   filled: true,
                                   fillColor: Color(0xFFFFFFFF),
+                                  hintText: "Start Time",
+                                  hintStyle: GoogleFonts.poppins(
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.black,
+                                  ),
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(15.r),
                                   ),
@@ -358,6 +421,8 @@ class _DAddNewTimeSlotPageState extends State<DAddNewTimeSlotPage> {
                               SizedBox(height: 10.h),
                               TextFormField(
                                 controller: breakEndController,
+                                readOnly: true,
+                                onTap: () => pickTime(breakEndController),
                                 decoration: InputDecoration(
                                   contentPadding: EdgeInsets.only(
                                     left: 18.w,
@@ -367,6 +432,12 @@ class _DAddNewTimeSlotPageState extends State<DAddNewTimeSlotPage> {
                                   ),
                                   filled: true,
                                   fillColor: Color(0xFFFFFFFF),
+                                  hintText: "End Time",
+                                  hintStyle: GoogleFonts.poppins(
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.black,
+                                  ),
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(15.r),
                                   ),
@@ -444,15 +515,103 @@ class _DAddNewTimeSlotPageState extends State<DAddNewTimeSlotPage> {
                           borderRadius: BorderRadius.circular(10.r),
                         ),
                       ),
-                      onPressed: () {},
-                      child: Text(
-                        "Submit",
-                        style: GoogleFonts.poppins(
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFFFFFFFF),
-                        ),
-                      ),
+                      onPressed: () async {
+                        String convertToApiTime(String time) {
+                          final dt = DateFormat("hh:mm a").parse(time);
+                          return DateFormat("HH:mm").format(dt);
+                        }
+
+                        setState(() {
+                          isLoading = true;
+                        });
+                        final body = UpdateManAvailabilityBodyModel(
+                          startTime: convertToApiTime(startTimeController.text),
+                          endTime: convertToApiTime(endTimeController.text),
+                          breaks: [
+                            Break(
+                              startTime: convertToApiTime(
+                                breakStartController.text,
+                              ),
+                              endTime: convertToApiTime(
+                                breakEndController.text,
+                              ),
+                            ),
+                          ],
+                        );
+
+                        try {
+                          final service = APIStateNetwork(callDio());
+                          final response = await service.updateManAvailability(
+                            widget.id,
+                            body,
+                          );
+                          if (response != null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text("Update Sucess"),
+                                backgroundColor: Color(0xFF067594),
+                                behavior: SnackBarBehavior.floating,
+                                margin: EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 20,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                elevation: 6,
+                              ),
+                            );
+                            ref.invalidate(
+                              avaibilityDetailsController(widget.id),
+                            );
+                            ref.invalidate(avaibilityController);
+                            Navigator.pop(context);
+                          }
+                        } catch (e, st) {
+                          setState(() {
+                            isLoading = false;
+                          });
+                          log(e.toString());
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("Error : $e"),
+                              backgroundColor: Color(0xFF067594),
+                              behavior: SnackBarBehavior.floating,
+                              margin: EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 10,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              elevation: 6,
+                            ),
+                          );
+                        } finally {
+                          setState(() {
+                            isLoading = false;
+                          });
+                        }
+                      },
+                      child: isLoading
+                          ? Center(
+                              child: SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 1,
+                                ),
+                              ),
+                            )
+                          : Text(
+                              "Submit",
+                              style: GoogleFonts.poppins(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w500,
+                                color: Color(0xFFFFFFFF),
+                              ),
+                            ),
                     ),
                   ],
                 ),
