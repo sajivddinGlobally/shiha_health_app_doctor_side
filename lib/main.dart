@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:siha_health_doctor_side/DoctorScreen/DSplash.screen.dart';
+import 'package:siha_health_doctor_side/config/utils/navigatorKey.dart';
 
 void main() {
   runApp(ProviderScope(child: const MyApp()));
@@ -21,7 +22,8 @@ class MyApp extends StatelessWidget {
         builder: (context, child) {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
-            // navigatorKey: navigatorKey,
+            navigatorKey: navigatorKey,
+            scaffoldMessengerKey: scaffoldMessengerKey,
             theme: ThemeData(
               colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
             ),

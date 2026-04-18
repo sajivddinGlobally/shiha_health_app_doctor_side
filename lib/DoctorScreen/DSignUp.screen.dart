@@ -18,11 +18,13 @@ class _DSignUpScreenState extends State<DSignUpScreen> {
       body: SingleChildScrollView(
         child: Stack(
           children: [
-            Image.asset(
-              "assets/si.png",
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
-              fit: BoxFit.fill,
+            Positioned.fill(
+              child: Image.asset(
+                "assets/si.png",
+                width: MediaQuery.of(context).size.width,
+                // height: MediaQuery.of(context).size.height,
+                fit: BoxFit.fill,
+              ),
             ),
             Align(
               alignment: Alignment.topCenter,

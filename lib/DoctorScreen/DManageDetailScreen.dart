@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -5,6 +7,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:siha_health_doctor_side/DoctorScreen/DAddNewTimeSlot.page.dart';
+import 'package:siha_health_doctor_side/config/network/api.state.dart';
+import 'package:siha_health_doctor_side/config/utils/pretty.dio.dart';
 import 'package:siha_health_doctor_side/data/Controller/manageAvailabilityController.dart';
 
 class DManageDetailScreen extends ConsumerStatefulWidget {
@@ -32,6 +36,8 @@ class _DManageDetailScreenState extends ConsumerState<DManageDetailScreen> {
       return time;
     }
   }
+
+  bool isDeleting = false;
 
   @override
   Widget build(BuildContext context) {
@@ -199,8 +205,11 @@ class _DManageDetailScreenState extends ConsumerState<DManageDetailScreen> {
                         Navigator.push(
                           context,
                           CupertinoPageRoute(
-                            builder: (context) =>
-                                DAddNewTimeSlotPage(id: data.id.toString()),
+                            builder: (context) => DAddNewTimeSlotPage(
+                              id: data.id.toString(),
+                              doctorId: data.doctorId ?? 0,
+                              isEdit: true,
+                            ),
                           ),
                         );
                       },
@@ -212,7 +221,39 @@ class _DManageDetailScreenState extends ConsumerState<DManageDetailScreen> {
                         ),
                       ),
                     ),
+                    SizedBox(height: 10.h),
 
+                    /// 🗑️ Delete Button
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: Size(double.infinity, 50.h),
+                        backgroundColor: Colors.red,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.r),
+                        ),
+                      ),
+                      onPressed: isDeleting
+                          ? null
+                          : () {
+                              showDeleteDialog(widget.id);
+                            },
+                      child: isDeleting
+                          ? SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : Text(
+                              "Delete Slot",
+                              style: GoogleFonts.poppins(
+                                fontSize: 16.sp,
+                                color: Colors.white,
+                              ),
+                            ),
+                    ),
                     SizedBox(height: 20.h),
                   ],
                 );
@@ -225,6 +266,89 @@ class _DManageDetailScreenState extends ConsumerState<DManageDetailScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  void showDeleteDialog(String id) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        bool dialogLoading = false; // 👈 dialog ka local state
+
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: Text("Delete Slot"),
+              content: Text("Are you sure you want to delete this slot?"),
+              actions: [
+                TextButton(
+                  onPressed: dialogLoading
+                      ? null
+                      : () => Navigator.pop(context),
+                  child: Text("Cancel"),
+                ),
+                TextButton(
+                  onPressed: dialogLoading
+                      ? null
+                      : () async {
+                          setDialogState(() {
+                            dialogLoading = true;
+                            isDeleting = true;
+                          });
+
+                          try {
+                            final service = APIStateNetwork(callDio());
+                            final response = await service
+                                .deleteManAvailability(id);
+
+                            if (response != null) {
+                              Navigator.pop(context);
+
+                              ref.invalidate(avaibilityController);
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    "${response.message ?? "Success"}",
+                                  ),
+                                  backgroundColor: Color(0xFF067594),
+                                  behavior: SnackBarBehavior.floating,
+                                  margin: EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                    vertical: 20,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15),
+                                  ),
+                                  elevation: 6,
+                                ),
+                              );
+
+                              Navigator.pop(context);
+                            }
+                          } catch (e) {
+                            log(e.toString());
+                          } finally {
+                            setDialogState(() {
+                              dialogLoading = false;
+                              isDeleting = false;
+                            });
+                          }
+                        },
+                  child: dialogLoading
+                      ? SizedBox(
+                          height: 15,
+                          width: 15,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Text("Delete", style: TextStyle(color: Colors.red)),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }

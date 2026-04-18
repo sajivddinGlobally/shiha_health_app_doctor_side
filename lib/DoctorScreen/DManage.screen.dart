@@ -17,9 +17,12 @@ class DManageScreen extends ConsumerStatefulWidget {
 }
 
 class _DManageScreenState extends ConsumerState<DManageScreen> {
+  int? doctorId;
+  String? id;
   @override
   Widget build(BuildContext context) {
     final availabilityProvider = ref.watch(avaibilityController);
+
     return Scaffold(
       body: Stack(
         children: [
@@ -31,6 +34,10 @@ class _DManageScreenState extends ConsumerState<DManageScreen> {
           ),
           availabilityProvider.when(
             data: (availability) {
+              final int doctorId = availability.isNotEmpty
+                  ? availability.first.doctorId
+                  : 0;
+              final id = availability.isNotEmpty ? availability.first.id : "";
               return Align(
                 alignment: Alignment.topLeft,
                 child: Padding(
@@ -82,30 +89,8 @@ class _DManageScreenState extends ConsumerState<DManageScreen> {
                           },
                         ),
                       ),
-                      // Row(
-                      //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      //   children: [
-                      //     _dayCard(
-                      //       "Mon- Wed",
-                      //       "09:00 AM - 06:00 PM",
-                      //       "2 Breaks",
-                      //     ),
-                      //     _dayCard("Sat- Sun", "On Leave", "No Breaks"),
-                      //   ],
-                      // ),
-                      // SizedBox(height: 20.h),
-                      // Row(
-                      //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      //   children: [
-                      //     _dayCard("Friday", "02:00 PM - 06:00 PM", "1 Breaks"),
-                      //     _dayCard(
-                      //       "Thursday",
-                      //       "02:00 PM - 04:00 PM",
-                      //       "1 Breaks",
-                      //     ),
-                      //   ],
-                      // ),
-                      SizedBox(height: 40.h),
+
+                      SizedBox(height: 15.h),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -122,7 +107,9 @@ class _DManageScreenState extends ConsumerState<DManageScreen> {
                                 context,
                                 CupertinoPageRoute(
                                   builder: (context) => DAddNewTimeSlotPage(
-                                    id: availability.first.id.toString(),
+                                    doctorId: doctorId,
+                                    id: id.toString(),
+                                    isEdit: false,
                                   ),
                                 ),
                               );
