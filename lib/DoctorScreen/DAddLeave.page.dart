@@ -1,23 +1,27 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:siha_health_doctor_side/data/Controller/addLeaveController.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-
-class DAddLeavePage extends StatefulWidget {
-  const DAddLeavePage({super.key});
+class DAddLeavePage extends ConsumerStatefulWidget {
+  final int doctorId;
+  const DAddLeavePage({super.key, required this.doctorId});
 
   @override
-  State<DAddLeavePage> createState() => _DAddLeavePageState();
+  ConsumerState<DAddLeavePage> createState() => _DAddLeavePageState();
 }
 
-class _DAddLeavePageState extends State<DAddLeavePage> {
+class _DAddLeavePageState extends ConsumerState<DAddLeavePage> {
   DateTime focusedDay = DateTime.now();
   List<DateTime> selectedDays = [];
   @override
   Widget build(BuildContext context) {
+    final addLeaveState = ref.watch(addLeaveProvider);
+    final isLoading = addLeaveState.isLoading;
     return Scaffold(
       body: Stack(
         children: [
@@ -58,9 +62,9 @@ class _DAddLeavePageState extends State<DAddLeavePage> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 24.h),
-                  Divider(color: Colors.white30),
                   SizedBox(height: 20.h),
+                  Divider(color: Colors.white30),
+                  SizedBox(height: 15.h),
                   TableCalendar(
                     firstDay: DateTime.utc(2020, 1, 1),
                     lastDay: DateTime.utc(2030, 12, 31),
@@ -161,9 +165,9 @@ class _DAddLeavePageState extends State<DAddLeavePage> {
                       });
                     },
                   ),
-                  SizedBox(height: 25),
+                  SizedBox(height: 15),
                   Divider(color: Colors.white24),
-                  SizedBox(height: 20),
+                  SizedBox(height: 15),
                   Text(
                     "Days Selected",
                     style: GoogleFonts.poppins(
@@ -229,15 +233,36 @@ class _DAddLeavePageState extends State<DAddLeavePage> {
                         side: BorderSide(color: Color(0xFF76BDFF)),
                       ),
                     ),
-                    onPressed: () {},
-                    child: Text(
-                      "Mark as leave",
-                      style: GoogleFonts.poppins(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFF76BDFF),
-                      ),
-                    ),
+                    onPressed: () {
+                      List<DateTime> convertedDates = selectedDays
+                          .map((e) => DateTime.parse(e.toString()))
+                          .toList();
+                      ref
+                          .read(addLeaveProvider.notifier)
+                          .addDoctorLeave(
+                            doctorId: widget.doctorId,
+                            leaveDates: selectedDays,
+                            reason: "reason",
+                            context: context,
+                          );
+                    },
+                    child: isLoading
+                        ? Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                              ),
+                            ),
+                          )
+                        : Text(
+                            "Mark as leave",
+                            style: GoogleFonts.poppins(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF76BDFF),
+                            ),
+                          ),
                   ),
                 ],
               ),

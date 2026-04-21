@@ -248,7 +248,7 @@ class _DAddNewTimeSlotPageState extends ConsumerState<DAddNewTimeSlotPage> {
                     SizedBox(height: 10.h),
                     DropdownButtonFormField<String>(
                       hint: Text(
-                        "--Select Specialization--",
+                        "Select Days",
                         style: GoogleFonts.poppins(
                           fontSize: 15.sp,
                           fontWeight: FontWeight.w400,

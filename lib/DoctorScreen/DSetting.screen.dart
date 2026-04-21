@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:siha_health_doctor_side/DoctorScreen/DEditProfile.page.dart';
 
 class DSettingScreen extends StatefulWidget {
   const DSettingScreen({super.key});
@@ -167,13 +168,25 @@ class _DSettingScreenState extends State<DSettingScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          settingBody(Icons.person_2_outlined, "Edit Profile"),
+                          settingBody(
+                            Icons.person_2_outlined,
+                            "Edit Profile",
+                            () {
+                              Navigator.push(
+                                context,
+                                CupertinoPageRoute(
+                                  builder: (context) => DEditProfilePage(),
+                                ),
+                              );
+                            },
+                          ),
                           SizedBox(height: 10.h),
                           Divider(color: Color(0xFF1A1F34)),
                           SizedBox(height: 20.h),
                           settingBody(
                             Icons.description_outlined,
                             "Professional Documents",
+                            () {},
                           ),
                           SizedBox(height: 10.h),
                           Divider(color: Color(0xFF1A1F34)),
@@ -181,6 +194,7 @@ class _DSettingScreenState extends State<DSettingScreen> {
                           settingBody(
                             Icons.credit_card,
                             "Consultation Fee & Availability",
+                            () {},
                           ),
                           SizedBox(height: 10.h),
                           Divider(color: Color(0xFF1A1F34)),
@@ -188,6 +202,7 @@ class _DSettingScreenState extends State<DSettingScreen> {
                           settingBody(
                             Icons.notifications_none_outlined,
                             "Notifications",
+                            () {},
                           ),
                           SizedBox(height: 10.h),
                           Divider(color: Color(0xFF1A1F34)),
@@ -195,11 +210,16 @@ class _DSettingScreenState extends State<DSettingScreen> {
                           settingBody(
                             Icons.insert_drive_file_outlined,
                             "Privacy Settings",
+                            () {},
                           ),
                           SizedBox(height: 10.h),
                           Divider(color: Color(0xFF1A1F34)),
                           SizedBox(height: 20.h),
-                          settingBody(Icons.headphones, "Help & Support"),
+                          settingBody(
+                            Icons.headphones,
+                            "Help & Support",
+                            () {},
+                          ),
                           SizedBox(height: 30.h),
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
@@ -235,24 +255,29 @@ class _DSettingScreenState extends State<DSettingScreen> {
     );
   }
 
-  Widget settingBody(IconData icon, String name) {
-    return SizedBox(
-      child: Row(
-        children: [
-          Icon(icon, color: Colors.white, size: 26.sp),
-          SizedBox(width: 10.w),
-          Text(
-            name,
-            style: GoogleFonts.poppins(
-              fontSize: 15.sp,
-              fontWeight: FontWeight.w500,
-              color: Colors.white,
-              letterSpacing: -0.4,
+  Widget settingBody(IconData icon, String name, VoidCallback callback) {
+    return InkWell(
+      onTap: () {
+        callback();
+      },
+      child: SizedBox(
+        child: Row(
+          children: [
+            Icon(icon, color: Colors.white, size: 26.sp),
+            SizedBox(width: 10.w),
+            Text(
+              name,
+              style: GoogleFonts.poppins(
+                fontSize: 15.sp,
+                fontWeight: FontWeight.w500,
+                color: Colors.white,
+                letterSpacing: -0.4,
+              ),
             ),
-          ),
-          Spacer(),
-          Icon(Icons.arrow_forward_ios, color: Colors.white, size: 26.sp),
-        ],
+            Spacer(),
+            Icon(Icons.arrow_forward_ios, color: Colors.white, size: 26.sp),
+          ],
+        ),
       ),
     );
   }

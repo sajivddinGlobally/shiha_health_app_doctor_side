@@ -34,7 +34,7 @@ abstract class APIStateNetwork {
   Future<ManageAvailabilityDetailsModel> manageAvailabilityDetails(
     @Path('id') String id,
   );
-
+  
   @PUT("/api/doctor-availabilities/{id}")
   Future<UpdateManAvailabilityResModel> updateManAvailability(
     @Path('id') String id,

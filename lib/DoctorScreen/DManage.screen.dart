@@ -136,7 +136,8 @@ class _DManageScreenState extends ConsumerState<DManageScreen> {
                               Navigator.push(
                                 context,
                                 CupertinoPageRoute(
-                                  builder: (context) => DAddLeavePage(),
+                                  builder: (context) =>
+                                      DAddLeavePage(doctorId: doctorId),
                                 ),
                               );
                             },

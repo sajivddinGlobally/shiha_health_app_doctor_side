@@ -32,12 +32,22 @@ class _DVerifyScreenState extends ConsumerState<DVerifyScreen> {
         child: SingleChildScrollView(
           child: Stack(
             children: [
-              Positioned.fill(
-                child: Image.asset(
-                  "assets/homebg.png",
-                  width: MediaQuery.of(context).size.width,
-                  // height: MediaQuery.of(context).size.height,
-                  fit: BoxFit.fill,
+              // Positioned.fill(
+              //   child: Image.asset(
+              //     "assets/homebg.png",
+              //     width: MediaQuery.of(context).size.width,
+              //     // height: MediaQuery.of(context).size.height,
+              //     fit: BoxFit.fill,
+              //   ),
+              // ),
+              Container(
+                width: double.infinity,
+                height: MediaQuery.of(context).size.height,
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage("assets/homebg.png"),
+                    fit: BoxFit.fill, // 👈 important
+                  ),
                 ),
               ),
               Padding(
@@ -397,7 +407,7 @@ class _DVerifyScreenState extends ConsumerState<DVerifyScreen> {
                               ),
                             ),
                     ),
-                    SizedBox(height: 30.h),
+                    // SizedBox(height: 30.h),
                   ],
                 ),
               ),
