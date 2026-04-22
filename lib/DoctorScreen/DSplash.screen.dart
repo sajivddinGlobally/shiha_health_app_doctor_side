@@ -251,7 +251,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:siha_health_doctor_side/DoctorScreen/DSignUp.screen.dart';
+import 'package:siha_health_doctor_side/DoctorScreen/DSignIn.screen.dart';
 
 class DSplashScreen extends StatefulWidget {
   const DSplashScreen({super.key});
@@ -702,7 +702,7 @@ class _DSplashScreenState extends State<DSplashScreen>
                     setState(() => _buttonPressed = false);
                     Navigator.push(
                       context,
-                      CupertinoPageRoute(builder: (context) => DSignUpScreen()),
+                      CupertinoPageRoute(builder: (context) => DSignInScreen()),
                     );
                   },
                   onTapCancel: () => setState(() => _buttonPressed = false),

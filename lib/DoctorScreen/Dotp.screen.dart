@@ -1,20 +1,28 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:otp_pin_field/otp_pin_field.dart';
-import 'package:siha_health_doctor_side/DoctorScreen/DSubmit.screen.dart';
+import 'package:siha_health_doctor_side/DoctorScreen/DHome.screen.dart';
+import 'package:siha_health_doctor_side/data/Controller/verifyOtpController.dart';
 
-class DOtpScreen extends StatefulWidget {
-  const DOtpScreen({super.key});
+class DOtpScreen extends ConsumerStatefulWidget {
+  final String email;
+  final String phone;
+  const DOtpScreen({super.key, required this.email, required this.phone});
 
   @override
-  State<DOtpScreen> createState() => _DOtpScreenState();
+  ConsumerState<DOtpScreen> createState() => _DOtpScreenState();
 }
 
-class _DOtpScreenState extends State<DOtpScreen> {
+class _DOtpScreenState extends ConsumerState<DOtpScreen> {
+  String emailOtp = "";
+  String phoneOtp = "";
   @override
   Widget build(BuildContext context) {
+    final otpVerifyState = ref.watch(verifyOtpProvider);
+    final isloading = otpVerifyState.isLoading;
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(
@@ -154,7 +162,11 @@ class _DOtpScreenState extends State<DOtpScreen> {
                             ),
                             maxLength: 6,
                             onSubmit: (text) {},
-                            onChange: (text) {},
+                            onChange: (v) {
+                              setState(() {
+                                phoneOtp = v;
+                              });
+                            },
                           ),
                           SizedBox(height: 25.h),
                           Text(
@@ -183,7 +195,11 @@ class _DOtpScreenState extends State<DOtpScreen> {
                             ),
                             maxLength: 6,
                             onSubmit: (text) {},
-                            onChange: (text) {},
+                            onChange: (v) {
+                              setState(() {
+                                emailOtp = v;
+                              });
+                            },
                           ),
                           SizedBox(height: 30.h),
                           ElevatedButton(
@@ -195,21 +211,41 @@ class _DOtpScreenState extends State<DOtpScreen> {
                               ),
                             ),
                             onPressed: () {
-                              Navigator.push(
-                                context,
-                                CupertinoPageRoute(
-                                  builder: (context) => DSubmitScreen(),
-                                ),
-                              );
+                              // Navigator.push(
+                              //   context,
+                              //   CupertinoPageRoute(
+                              //     builder: (context) => MyBottomNavigation(),
+                              //   ),
+                              // );
+                              ref
+                                  .read(verifyOtpProvider.notifier)
+                                  .otpVerify(
+                                    email: widget.email,
+                                    emailOtp: emailOtp,
+                                    phoneNumber: widget.phone,
+                                    phoneOtp: phoneOtp,
+                                    context: context,
+                                  );
                             },
-                            child: Text(
-                              "Verify OTP",
-                              style: GoogleFonts.poppins(
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.w500,
-                                color: Color(0xFFFFFFFF),
-                              ),
-                            ),
+                            child: isloading
+                                ? Center(
+                                    child: SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 1.5,
+                                      ),
+                                    ),
+                                  )
+                                : Text(
+                                    "Verify OTP",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 16.sp,
+                                      fontWeight: FontWeight.w500,
+                                      color: Color(0xFFFFFFFF),
+                                    ),
+                                  ),
                           ),
                           SizedBox(height: 15.h),
                           Text.rich(

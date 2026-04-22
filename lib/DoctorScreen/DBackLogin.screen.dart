@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:siha_health_doctor_side/DoctorScreen/DHome.screen.dart';
+import 'package:siha_health_doctor_side/DoctorScreen/DSignIn.screen.dart';
 
 class DBackLoginScreen extends StatefulWidget {
   const DBackLoginScreen({super.key});
@@ -64,15 +65,16 @@ class _DBackLoginScreenState extends State<DBackLoginScreen> {
                       ),
                     ),
                     onPressed: () {
-                      Navigator.push(
+                      Navigator.pushAndRemoveUntil(
                         context,
                         CupertinoPageRoute(
-                          builder: (context) => MyBottomNavigation(),
+                          builder: (context) => DSignInScreen(),
                         ),
+                        (route) => false,
                       );
                     },
                     child: Text(
-                      "Submit",
+                      "Back to Login",
                       style: GoogleFonts.poppins(
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w500,
