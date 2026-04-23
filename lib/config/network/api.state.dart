@@ -5,8 +5,12 @@ import 'package:siha_health_doctor_side/data/Model/addManAvailabilityBodyModel.d
 import 'package:siha_health_doctor_side/data/Model/addManAvailibilityResModel.dart';
 import 'package:siha_health_doctor_side/data/Model/deleteManAvailabilityResModel.dart';
 import 'package:siha_health_doctor_side/data/Model/hospitalListResModel.dart';
+import 'package:siha_health_doctor_side/data/Model/leaveDeleteResModel.dart';
+import 'package:siha_health_doctor_side/data/Model/leaveListResModel.dart';
 import 'package:siha_health_doctor_side/data/Model/manageAvailabilityDetilsModel.dart';
 import 'package:siha_health_doctor_side/data/Model/manageAvailabilityModel.dart';
+import 'package:siha_health_doctor_side/data/Model/pastAppointmentResModel.dart';
+import 'package:siha_health_doctor_side/data/Model/profileResModel.dart';
 import 'package:siha_health_doctor_side/data/Model/registerDotorResModel.dart';
 import 'package:siha_health_doctor_side/data/Model/registerSendEmailBodyModel.dart';
 import 'package:siha_health_doctor_side/data/Model/registerSendEmailResModel.dart';
@@ -56,6 +60,9 @@ abstract class APIStateNetwork {
   @POST("/api/doctor-leaves")
   Future<HttpResponse<dynamic>> addLeave(@Body() AddLeaveBodyModel body);
 
+  @GET("/api/doctor-leaves")
+  Future<LeaveListResModel> myLeaveList();
+
   @GET("/api/hospitals")
   Future<List<HospitalListResponse>> fetchAllHospitals();
 
@@ -75,4 +82,13 @@ abstract class APIStateNetwork {
     @Part(name: "profile_picture") MultipartFile? pictureFile,
     @Part(name: "medical_license_file") MultipartFile? licenseFile,
   );
+
+  @GET("/api/appointments/past/26")
+  Future<PastAppointmentResModel> pastAppointment();
+
+  @GET("/api/doctors/27")
+  Future<ProfileResModel> fetchProfile();
+
+  @DELETE("/api/doctor-leaves/{id}")
+  Future<LeaveDeleteResModel> leaveDelete(@Path('id') String id);
 }

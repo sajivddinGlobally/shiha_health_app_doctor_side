@@ -1,25 +1,28 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:siha_health_doctor_side/DoctorScreen/DAppointment.screen.dart';
 import 'package:siha_health_doctor_side/DoctorScreen/DManage.screen.dart';
 import 'package:siha_health_doctor_side/DoctorScreen/DSetting.screen.dart';
 import 'package:siha_health_doctor_side/DoctorScreen/PatientDetail.screen.dart';
+import 'package:siha_health_doctor_side/data/Controller/pastAppointmentResModel.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
-class DHomeScreen extends StatefulWidget {
+class DHomeScreen extends ConsumerStatefulWidget {
   const DHomeScreen({super.key});
 
   @override
-  State<DHomeScreen> createState() => _DHomeScreenState();
+  ConsumerState<DHomeScreen> createState() => _DHomeScreenState();
 }
 
-class _DHomeScreenState extends State<DHomeScreen> {
+class _DHomeScreenState extends ConsumerState<DHomeScreen> {
   final PageController controller = PageController();
   int tab = 0;
   @override
   Widget build(BuildContext context) {
+    final pastAppointState = ref.watch(pastAppointmentProvider);
     return Scaffold(
       body: SingleChildScrollView(
         child: Stack(
@@ -464,6 +467,9 @@ class _DHomeScreenState extends State<DHomeScreen> {
                               setState(() {
                                 tab = 1;
                               });
+                              ref
+                                  .read(pastAppointmentProvider.notifier)
+                                  .fetchPastAppointment();
                             },
                             child: Container(
                               width: 195.w,
@@ -491,113 +497,134 @@ class _DHomeScreenState extends State<DHomeScreen> {
                     ),
                   ),
                   SizedBox(height: 20.h),
-                  GridView.builder(
-                    itemCount: 6,
-                    physics: NeverScrollableScrollPhysics(),
-                    padding: EdgeInsets.zero,
-                    shrinkWrap: true,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 0,
-                      mainAxisSpacing: 0,
-                      childAspectRatio: 190 / 191,
-                    ),
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: EdgeInsets.only(left: 20.w, right: 20.w),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  CupertinoPageRoute(
-                                    builder: (context) => PatientDetailScreen(),
-                                  ),
-                                );
-                              },
-                              child: SizedBox(
-                                width: 190.w,
-                                height: 120.h,
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(10.r),
-                                  child: Image.asset(
-                                    "assets/g1.png",
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Container(
-                              margin: EdgeInsets.only(top: 15.h),
-                              padding: EdgeInsets.only(
-                                left: 6.w,
-                                right: 8.w,
-                                top: 5.h,
-                                bottom: 5.h,
-                              ),
-                              width: 150.w,
-                              // height: 18.h,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(30.r),
-                                color: Color(0xFF163538),
-                              ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Icon(
-                                    Icons.access_time_filled,
-                                    color: Color(0xFF7DFFB4),
-                                    size: 18.sp,
-                                  ),
-                                  SizedBox(width: 5.w),
-                                  Text(
-                                    "5 Aug 2025, 10:30 AM",
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 10.sp,
-                                      fontWeight: FontWeight.w500,
-                                      color: Color(0xFF7DFFB4),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(height: 10.h),
-                            Text(
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              "Routine Check-up or Fever",
-                              style: GoogleFonts.poppins(
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.white,
-                                letterSpacing: -0.4,
-                              ),
-                            ),
-                            SizedBox(height: 4.h),
-                            Text(
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              "Rajesh Kumar (42M)",
-                              style: GoogleFonts.poppins(
-                                fontSize: 12.sp,
-                                fontWeight: FontWeight.w500,
-                                color: Color.fromARGB(153, 240, 243, 245),
-                                letterSpacing: -0.4,
-                              ),
-                            ),
-                          ],
+                  pastAppointState.when(
+                    data: (data) {
+                      return GridView.builder(
+                        itemCount: data.data!.length,
+                        physics: NeverScrollableScrollPhysics(),
+                        padding: EdgeInsets.zero,
+                        shrinkWrap: true,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 0,
+                          mainAxisSpacing: 0,
+                          childAspectRatio: 190 / 191,
+                        ),
+                        itemBuilder: (context, index) {
+                          final user = data.data?[index].user;
+                          return _appointWidget(
+                            user?.patientImage ?? "",
+                          );
+                        },
+                      );
+                    },
+                    error: (error, stackTrace) {
+                      return Center(
+                        child: Text(
+                          error.toString(),
+                          style: TextStyle(color: Colors.white),
                         ),
                       );
                     },
+                    loading: () => Center(
+                      child: CircularProgressIndicator(color: Colors.white),
+                    ),
                   ),
                 ],
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _appointWidget(String image) {
+    return Padding(
+      padding: EdgeInsets.only(left: 20.w, right: 20.w),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                CupertinoPageRoute(builder: (context) => PatientDetailScreen()),
+              );
+            },
+            child: SizedBox(
+              width: 190.w,
+              height: 120.h,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10.r),
+                child: Image.asset(
+                  // "assets/g1.png",
+                  image,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+          ),
+          Container(
+            margin: EdgeInsets.only(top: 15.h),
+            padding: EdgeInsets.only(
+              left: 6.w,
+              right: 8.w,
+              top: 5.h,
+              bottom: 5.h,
+            ),
+            width: 150.w,
+            // height: 18.h,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(30.r),
+              color: Color(0xFF163538),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.access_time_filled,
+                  color: Color(0xFF7DFFB4),
+                  size: 18.sp,
+                ),
+                SizedBox(width: 5.w),
+                Text(
+                  "5 Aug 2025, 10:30 AM",
+                  style: GoogleFonts.poppins(
+                    fontSize: 10.sp,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xFF7DFFB4),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 10.h),
+          Text(
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            "Routine Check-up or Fever",
+            style: GoogleFonts.poppins(
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w500,
+              color: Colors.white,
+              letterSpacing: -0.4,
+            ),
+          ),
+          SizedBox(height: 4.h),
+          Text(
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            "Rajesh Kumar (42M)",
+            style: GoogleFonts.poppins(
+              fontSize: 12.sp,
+              fontWeight: FontWeight.w500,
+              color: Color.fromARGB(153, 240, 243, 245),
+              letterSpacing: -0.4,
+            ),
+          ),
+        ],
       ),
     );
   }
