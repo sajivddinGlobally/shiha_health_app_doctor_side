@@ -5,11 +5,21 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:siha_health_doctor_side/data/Controller/addLeaveController.dart';
+import 'package:siha_health_doctor_side/data/Controller/leaveUpdateControlelr.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class DAddLeavePage extends ConsumerStatefulWidget {
-  final int doctorId;
-  const DAddLeavePage({super.key, required this.doctorId});
+  final int? doctorId;
+  final String? id;
+  final List<String>? existingDates;
+  final String? reason;
+  const DAddLeavePage({
+    super.key,
+    this.doctorId,
+    this.id,
+    this.existingDates,
+    this.reason,
+  });
 
   @override
   ConsumerState<DAddLeavePage> createState() => _DAddLeavePageState();
@@ -18,10 +28,24 @@ class DAddLeavePage extends ConsumerStatefulWidget {
 class _DAddLeavePageState extends ConsumerState<DAddLeavePage> {
   DateTime focusedDay = DateTime.now();
   List<DateTime> selectedDays = [];
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.existingDates != null) {
+      selectedDays = widget.existingDates!
+          .map((e) => DateTime.parse(e))
+          .toList();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final addLeaveState = ref.watch(addLeaveProvider);
     final isLoading = addLeaveState.isLoading;
+    final isUpdateState = ref.watch(updateLeaveProvider);
+    final isUpdate = isUpdateState.isLoading;
     return Scaffold(
       body: Stack(
         children: [
@@ -53,7 +77,7 @@ class _DAddLeavePageState extends ConsumerState<DAddLeavePage> {
                       ),
                       SizedBox(width: 10.w),
                       Text(
-                        "Add New Leave",
+                        widget.id == null ? "Add New Leave" : "Update Leave",
                         style: GoogleFonts.poppins(
                           fontSize: 18.sp,
                           fontWeight: FontWeight.w500,
@@ -234,19 +258,28 @@ class _DAddLeavePageState extends ConsumerState<DAddLeavePage> {
                       ),
                     ),
                     onPressed: () {
-                      List<DateTime> convertedDates = selectedDays
-                          .map((e) => DateTime.parse(e.toString()))
-                          .toList();
-                      ref
-                          .read(addLeaveProvider.notifier)
-                          .addDoctorLeave(
-                            doctorId: widget.doctorId,
-                            leaveDates: selectedDays,
-                            reason: "reason",
-                            context: context,
-                          );
+                      if (widget.id == null) {
+                        ref
+                            .read(addLeaveProvider.notifier)
+                            .addDoctorLeave(
+                              doctorId: widget.doctorId!,
+                              leaveDates: selectedDays,
+                              reason: "reason",
+                              context: context,
+                            );
+                      } else {
+                        ref
+                            .read(updateLeaveProvider.notifier)
+                            .updateLeave(
+                              doctorId: widget.doctorId!,
+                              leaveDates: selectedDays,
+                              reason: widget.reason ?? "Personal Leave",
+                              id: widget.id!,
+                              context: context,
+                            );
+                      }
                     },
-                    child: isLoading
+                    child: isLoading || isUpdate
                         ? Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Center(
@@ -256,7 +289,9 @@ class _DAddLeavePageState extends ConsumerState<DAddLeavePage> {
                             ),
                           )
                         : Text(
-                            "Mark as leave",
+                            widget.id == null
+                                ? "Mark as leave"
+                                : "Update Leave",
                             style: GoogleFonts.poppins(
                               fontSize: 16.sp,
                               fontWeight: FontWeight.w500,

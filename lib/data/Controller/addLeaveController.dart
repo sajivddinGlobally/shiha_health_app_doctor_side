@@ -1,13 +1,16 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:siha_health_doctor_side/DoctorScreen/DleaveList.page.dart';
 import 'package:siha_health_doctor_side/config/network/api.state.dart';
 import 'package:siha_health_doctor_side/config/utils/pretty.dio.dart';
+import 'package:siha_health_doctor_side/data/Controller/myLeaveController.dart';
 import 'package:siha_health_doctor_side/data/Model/addLeaveBodyModel.dart';
 
 class AddlLeaveController
     extends StateNotifier<AsyncValue<Map<String, dynamic>?>> {
-  AddlLeaveController() : super(AsyncValue.data(null));
+  final Ref ref;
+  AddlLeaveController(this.ref) : super(AsyncValue.data(null));
   Future<void> addDoctorLeave({
     required int doctorId,
     required List<DateTime> leaveDates,
@@ -30,18 +33,24 @@ class AddlLeaveController
       state = AsyncValue.data(data);
 
       if (response.response.statusCode == 201) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Add Leave Sucess"),
-            backgroundColor: Color(0xFF067594),
-            behavior: SnackBarBehavior.floating,
-            margin: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
-            ),
-            elevation: 6,
-          ),
+        ref.invalidate(myLeaveListController);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => DLeaveListPage()),
         );
+
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(
+        //     content: Text("Add Leave Sucess"),
+        //     backgroundColor: Color(0xFF067594),
+        //     behavior: SnackBarBehavior.floating,
+        //     margin: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        //     shape: RoundedRectangleBorder(
+        //       borderRadius: BorderRadius.circular(15),
+        //     ),
+        //     elevation: 6,
+        //   ),
+        // );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -83,5 +92,5 @@ final addLeaveProvider =
       AddlLeaveController,
       AsyncValue<Map<String, dynamic>?>
     >((ref) {
-      return AddlLeaveController();
+      return AddlLeaveController(ref);
     });

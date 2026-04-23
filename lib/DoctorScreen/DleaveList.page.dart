@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:siha_health_doctor_side/DoctorScreen/DAddLeave.page.dart';
 import 'package:siha_health_doctor_side/data/Controller/leaveDeleteController.dart';
 import 'package:siha_health_doctor_side/data/Controller/myLeaveController.dart';
 
@@ -277,7 +278,22 @@ class _DLeaveListPageState extends ConsumerState<DLeaveListPage> {
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
                                     InkWell(
-                                      onTap: () {},
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          CupertinoPageRoute(
+                                            builder: (context) => DAddLeavePage(
+                                              doctorId: item!.doctorId!.toInt(),
+                                              id: item.id.toString(),
+                                              existingDates:
+                                                  (item.leaveDates ?? [])
+                                                      .map((e) => e.toString())
+                                                      .toList(),
+                                              reason: item.reason,
+                                            ),
+                                          ),
+                                        );
+                                      },
                                       child: Container(
                                         padding: EdgeInsets.symmetric(
                                           horizontal: 12.w,

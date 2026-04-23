@@ -1,35 +1,38 @@
 import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:siha_health_doctor_side/config/network/api.state.dart';
 import 'package:siha_health_doctor_side/config/utils/pretty.dio.dart';
 import 'package:siha_health_doctor_side/data/Controller/myLeaveController.dart';
-import 'package:siha_health_doctor_side/data/Model/leaveDeleteResModel.dart';
+import 'package:siha_health_doctor_side/data/Model/leaveUpdateBodyModel.dart';
+import 'package:siha_health_doctor_side/data/Model/leaveUpdateResModel.dart';
 
-class LeaveDeleteController
-    extends StateNotifier<AsyncValue<LeaveDeleteResModel?>> {
+class LeaveUpdateControlelr
+    extends StateNotifier<AsyncValue<LeaveUpdateResModel?>> {
   final Ref ref;
-  LeaveDeleteController(this.ref) : super(AsyncValue.data(null));
-  Future<bool> deleteLeave({
+  LeaveUpdateControlelr(this.ref) : super(AsyncValue.data(null));
+
+  Future<void> updateLeave({
+    required int doctorId,
+    required List<DateTime> leaveDates,
+    required String reason,
     required String id,
     required BuildContext context,
   }) async {
     try {
-      state = const AsyncValue.loading();
-
+      state = AsyncValue.loading();
+      final body = LeaveUpdateBodyModel(
+        doctorId: doctorId,
+        leaveDates: leaveDates,
+        reason: reason,
+      );
       final service = APIStateNetwork(callDio());
-      final response = await service.leaveDelete(id);
-      if (response.status == true) {
-        ref.invalidate(myLeaveListController);
-
-        /// ✅ Refresh list
-        ref.invalidate(myLeaveListController);
-
-        /// ✅ Close dialog FIRST
-        Navigator.pop(context);
+      final resposne = await service.leaveUpdate(id, body);
+      if (resposne.status == true) {
         // ScaffoldMessenger.of(context).showSnackBar(
         //   SnackBar(
-        //     content: Text(response.message ?? "Delete"),
+        //     content: Text(resposne.message ?? "Update sucess"),
         //     backgroundColor: Color(0xFF067594),
         //     behavior: SnackBarBehavior.floating,
         //     margin: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
@@ -39,15 +42,13 @@ class LeaveDeleteController
         //     elevation: 6,
         //   ),
         // );
-        state = AsyncValue.data(response);
-
-        return true;
+        ref.invalidate(myLeaveListController);
+        Navigator.pop(context);
+        state = AsyncValue.data(resposne);
       } else {
-        state = const AsyncValue.data(null);
-
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Something went wrong"),
+            content: Text(resposne.message ?? "Error"),
             backgroundColor: Color(0xFF067594),
             behavior: SnackBarBehavior.floating,
             margin: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
@@ -57,15 +58,14 @@ class LeaveDeleteController
             elevation: 6,
           ),
         );
-        return false;
       }
     } catch (e, st) {
-      state = AsyncValue.error(e, st);
       log(e.toString());
+      log(st.toString());
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Error deleting leave"),
-          backgroundColor: Colors.red,
+          content: Text("Error $e"),
+          backgroundColor: Color(0xFF067594),
           behavior: SnackBarBehavior.floating,
           margin: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           shape: RoundedRectangleBorder(
@@ -74,15 +74,14 @@ class LeaveDeleteController
           elevation: 6,
         ),
       );
-      return false;
     }
   }
 }
 
-final leaveDeleteProvider =
+final updateLeaveProvider =
     StateNotifierProvider<
-      LeaveDeleteController,
-      AsyncValue<LeaveDeleteResModel?>
+      LeaveUpdateControlelr,
+      AsyncValue<LeaveUpdateResModel?>
     >((ref) {
-      return LeaveDeleteController(ref);
+      return LeaveUpdateControlelr(ref);
     });

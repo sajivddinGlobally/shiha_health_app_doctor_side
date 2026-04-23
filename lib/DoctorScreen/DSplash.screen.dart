@@ -500,10 +500,11 @@ class _DSplashScreenState extends State<DSplashScreen>
                                       ),
                                     ],
                                   ),
-                                  child: Icon(
-                                    Icons.favorite_rounded,
-                                    color: const Color(0xFF00C8E8),
-                                    size: 32.sp,
+                                  child: ClipOval(
+                                    child: Image.asset(
+                                      "assets/sihaLogo.png",
+                                      fit: BoxFit.contain,
+                                    ),
                                   ),
                                 ),
                               );
@@ -690,7 +691,6 @@ class _DSplashScreenState extends State<DSplashScreen>
                     height: 1.6,
                   ),
                   textAlign: TextAlign.center,
-                  
                 ),
 
                 SizedBox(height: 24.h),

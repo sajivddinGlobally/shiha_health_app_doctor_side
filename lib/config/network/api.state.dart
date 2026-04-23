@@ -7,6 +7,8 @@ import 'package:siha_health_doctor_side/data/Model/deleteManAvailabilityResModel
 import 'package:siha_health_doctor_side/data/Model/hospitalListResModel.dart';
 import 'package:siha_health_doctor_side/data/Model/leaveDeleteResModel.dart';
 import 'package:siha_health_doctor_side/data/Model/leaveListResModel.dart';
+import 'package:siha_health_doctor_side/data/Model/leaveUpdateBodyModel.dart';
+import 'package:siha_health_doctor_side/data/Model/leaveUpdateResModel.dart';
 import 'package:siha_health_doctor_side/data/Model/manageAvailabilityDetilsModel.dart';
 import 'package:siha_health_doctor_side/data/Model/manageAvailabilityModel.dart';
 import 'package:siha_health_doctor_side/data/Model/pastAppointmentResModel.dart';
@@ -91,4 +93,10 @@ abstract class APIStateNetwork {
 
   @DELETE("/api/doctor-leaves/{id}")
   Future<LeaveDeleteResModel> leaveDelete(@Path('id') String id);
+
+  @PUT("/api/doctor-leaves/{id}")
+  Future<LeaveUpdateResModel> leaveUpdate(
+    @Path('id') String id,
+    @Body() LeaveUpdateBodyModel body,
+  );
 }
